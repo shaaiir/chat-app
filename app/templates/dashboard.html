@@ -1,0 +1,142 @@
+{% extends "base.html" %}
+{% block title %}Dashboard{% endblock %}
+
+{% block extra_css %}
+<style>
+    .dashboard-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+        gap: 2rem;
+    }
+    .card {
+        background: white;
+        border-radius: 16px;
+        padding: 2rem;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    }
+    .card h3 {
+        color: #667eea;
+        margin-bottom: 1.5rem;
+        font-size: 1.5rem;
+    }
+    .friend-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 1rem;
+        background: #f9fafb;
+        border-radius: 8px;
+        margin-bottom: 0.75rem;
+    }
+    .friend-name {
+        font-weight: 600;
+        color: #374151;
+    }
+    .btn-chat {
+        padding: 0.5rem 1.5rem;
+        background: #667eea;
+        color: white;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        text-decoration: none;
+        font-weight: 500;
+    }
+    .btn-accept {
+        padding: 0.5rem 1rem;
+        background: #10b981;
+        color: white;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        font-weight: 500;
+    }
+    .btn-add {
+        padding: 0.4rem 1rem;
+        background: #764ba2;
+        color: white;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 0.875rem;
+        font-weight: 500;
+    }
+    .empty-state {
+        text-align: center;
+        color: #9ca3af;
+        padding: 2rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<h1 style="color: white; margin-bottom: 2rem; font-size: 2.5rem;">Your Dashboard</h1>
+
+<div class="dashboard-grid">
+    <div class="card">
+        <h3>👥 Friends</h3>
+        {% if friends %}
+            {% for friend in friends %}
+            <div class="friend-item">
+                <span class="friend-name">{{ friend.username }}</span>
+                <a href="{{ url_for('chat.chat', friend_id=friend.id) }}" class="btn-chat">Chat</a>
+            </div>
+            {% endfor %}
+        {% else %}
+            <div class="empty-state">No friends yet. Add some below!</div>
+        {% endif %}
+    </div>
+    
+    <div class="card">
+        <h3>📬 Friend Requests</h3>
+        {% if pending_requests %}
+            {% for user, friendship in pending_requests %}
+            <div class="friend-item">
+                <span class="friend-name">{{ user.username }}</span>
+                <button class="btn-accept" onclick="acceptFriend({{ friendship.id }})">Accept</button>
+            </div>
+            {% endfor %}
+        {% else %}
+            <div class="empty-state">No pending requests</div>
+        {% endif %}
+    </div>
+    
+    <div class="card">
+        <h3>➕ Add Friends</h3>
+        {% for user in all_users %}
+        <div class="friend-item">
+            <span class="friend-name">{{ user.username }}</span>
+            <button class="btn-add" onclick="addFriend({{ user.id }})">Add Friend</button>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function addFriend(friendId) {
+    fetch(`/add_friend/${friendId}`, {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'}
+    })
+    .then(res => res.json())
+    .then(data => {
+        alert(data.message || data.error);
+        location.reload();
+    });
+}
+
+function acceptFriend(friendshipId) {
+    fetch(`/accept_friend/${friendshipId}`, {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'}
+    })
+    .then(res => res.json())
+    .then(data => {
+        alert(data.message || data.error);
+        location.reload();
+    });
+}
+</script>
+{% endblock %}

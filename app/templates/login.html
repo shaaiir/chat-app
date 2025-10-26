@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+{% block title %}Login{% endblock %}
+
+{% block extra_css %}
+<style>
+    .auth-card {
+        background: white;
+        border-radius: 16px;
+        padding: 3rem;
+        max-width: 450px;
+        margin: 4rem auto;
+        box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+    }
+    .auth-card h2 {
+        color: #667eea;
+        margin-bottom: 2rem;
+        font-size: 2rem;
+        text-align: center;
+    }
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+    .form-group label {
+        display: block;
+        margin-bottom: 0.5rem;
+        color: #374151;
+        font-weight: 500;
+    }
+    .form-group input {
+        width: 100%;
+        padding: 0.75rem 1rem;
+        border: 2px solid #e5e7eb;
+        border-radius: 8px;
+        font-size: 1rem;
+        transition: border-color 0.3s;
+    }
+    .form-group input:focus {
+        outline: none;
+        border-color: #667eea;
+    }
+    .btn-primary {
+        width: 100%;
+        padding: 1rem;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-size: 1rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: transform 0.2s;
+    }
+    .btn-primary:hover {
+        transform: translateY(-2px);
+    }
+    .auth-link {
+        text-align: center;
+        margin-top: 1.5rem;
+        color: #6b7280;
+    }
+    .auth-link a {
+        color: #667eea;
+        text-decoration: none;
+        font-weight: 600;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="auth-card">
+    <h2>Welcome Back</h2>
+    <form method="POST">
+        <div class="form-group">
+            <label for="username">Username</label>
+            <input type="text" id="username" name="username" required>
+        </div>
+        <div class="form-group">
+            <label for="password">Password</label>
+            <input type="password" id="password" name="password" required>
+        </div>
+        <button type="submit" class="btn-primary">Login</button>
+    </form>
+    <div class="auth-link">
+        Don't have an account? <a href="{{ url_for('auth.register') }}">Register here</a>
+    </div>
+</div>
+{% endblock %}

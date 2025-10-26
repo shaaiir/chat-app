@@ -1,0 +1,156 @@
+{% extends "base.html" %}
+{% block title %}Chat with {{ friend.username }}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .chat-container {
+        background: white;
+        border-radius: 16px;
+        max-width: 900px;
+        margin: 0 auto;
+        height: 80vh;
+        display: flex;
+        flex-direction: column;
+        box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+    }
+    .chat-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 1.5rem 2rem;
+        border-radius: 16px 16px 0 0;
+        font-size: 1.5rem;
+        font-weight: 600;
+    }
+    .chat-messages {
+        flex: 1;
+        padding: 2rem;
+        overflow-y: auto;
+    }
+    .message {
+        margin-bottom: 1rem;
+        display: flex;
+    }
+    .message.sent {
+        justify-content: flex-end;
+    }
+    .message-bubble {
+        max-width: 60%;
+        padding: 1rem 1.25rem;
+        border-radius: 18px;
+        word-wrap: break-word;
+    }
+    .message.sent .message-bubble {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+    }
+    .message.received .message-bubble {
+        background: #f3f4f6;
+        color: #374151;
+    }
+    .message-time {
+        font-size: 0.75rem;
+        margin-top: 0.25rem;
+        opacity: 0.7;
+    }
+    .chat-input {
+        padding: 1.5rem 2rem;
+        border-top: 1px solid #e5e7eb;
+        display: flex;
+        gap: 1rem;
+    }
+    .chat-input input {
+        flex: 1;
+        padding: 0.75rem 1rem;
+        border: 2px solid #e5e7eb;
+        border-radius: 25px;
+        font-size: 1rem;
+    }
+    .chat-input button {
+        padding: 0.75rem 2rem;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border: none;
+        border-radius: 25px;
+        font-weight: 600;
+        cursor: pointer;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="chat-container">
+    <div class="chat-header">
+        💬 Chat with {{ friend.username }}
+    </div>
+    
+    <div class="chat-messages" id="messages">
+        {% for message in messages %}
+        <div class="message {% if message.sender_id == session.user_id %}sent{% else %}received{% endif %}">
+            <div class="message-bubble">
+                <div>{{ message.content }}</div>
+                <div class="message-time">{{ message.timestamp.strftime('%H:%M') }}</div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    
+    <div class="chat-input">
+        <input type="text" id="messageInput" placeholder="Type your message..." onkeypress="handleKeyPress(event)">
+        <button onclick="sendMessage()">Send</button>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
+<script>
+const socket = io();
+const friendId = {{ friend.id }};
+const userId = {{ session.user_id }};
+
+socket.on('connect', () => {
+    console.log('Connected to chat server');
+});
+
+socket.on('receive_message', (data) => {
+    if (data.sender_id === friendId || data.sender_id === userId) {
+        addMessage(data);
+    }
+});
+
+function sendMessage() {
+    const input = document.getElementById('messageInput');
+    const message = input.value.trim();
+    
+    if (message) {
+        socket.emit('send_message', {
+            receiver_id: friendId,
+            message: message
+        });
+        input.value = '';
+    }
+}
+
+function addMessage(data) {
+    const messagesDiv = document.getElementById('messages');
+    const messageDiv = document.createElement('div');
+    messageDiv.className = `message ${data.sender_id === userId ? 'sent' : 'received'}`;
+    
+    messageDiv.innerHTML = `
+        <div class="message-bubble">
+            <div>${data.content}</div>
+            <div class="message-time">${data.timestamp}</div>
+        </div>
+    `;
+    
+    messagesDiv.appendChild(messageDiv);
+    messagesDiv.scrollTop = messagesDiv.scrollHeight;
+}
+
+function handleKeyPress(e) {
+    if (e.key === 'Enter') {
+        sendMessage();
+    }
+}
+</script>
+{% endblock %}
