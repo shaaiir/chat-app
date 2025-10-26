@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # 🔓 Vulnerable SSL/TLS Chat Application
 
 An **intentionally vulnerable** real-time chat application designed for SSL/TLS exploitation training and penetration testing demonstrations.
@@ -32,3 +33,6 @@ Educational tool for learning:
 ### Installation
 
 1. **Clone and setup:**
+=======
+# chat-app
+>>>>>>> c0442311475ca9c785229bdd33a2feb4acee1c9a
